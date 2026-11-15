@@ -39,7 +39,7 @@ RainLens uses OpenStreetMap raster tiles with a CSS dark filter, with OpenStreet
 
 ### Low rainfall values and the 0.3 mm question
 
-RainLens stores rainfall to the nearest 0.1 mm, so a value of 0.3 mm is stored as `3` with `scale: 10`, then decoded back to 0.3 mm in the browser. Values below 0.2 mm per six-hour interval are transparent on the map; values from 0.2 mm to below 1 mm use the light-blue color. The point chart can show these small values directly.
+RainLens stores rainfall to the nearest 0.1 mm, so a value of 0.3 mm is stored as `3` with `scale: 10`, then decoded back to 0.3 mm in the browser. The browser uses a floating-point typed array so tenths of a millimetre are retained; an earlier integer-array decode truncated decimal values and has been corrected. Values below 0.2 mm per six-hour interval are transparent on the map; values from 0.2 mm to below 1 mm use the light-blue color. The point chart can show these small values directly.
 
 There is also a separate threshold in the written summary: if the sum across the full six-day forecast at the selected point is below 1 mm, the summary says “No significant rain expected.” That can make a small amount such as 0.3 mm seem absent from the summary even though it remains in the data and chart. Low amounts may also be visually subtle on the map because the overlay is partially transparent.
 
@@ -58,6 +58,38 @@ Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/) on the same computer. Keep
 The GitHub Actions workflow at `.github/workflows/deploy-pages.yml` runs on each push to `main` (and can also be started manually). It checks out the repository, configures Pages, uploads **only `web/`** as the Pages artifact, and deploys it. It does not install Python dependencies or run `pipeline.py`. To publish a refreshed forecast, run the pipeline locally, commit the updated JSON files in `web/data/`, and push to `main`. The `.gitignore` excludes downloaded `*.grib2` files and `*.idx` request indexes; it does not ignore the JSON forecast data.
 
 The repository uses ECMWF Open Data under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/). Please retain attribution when reusing the forecast data.
+
+### What the current paired run shows
+
+The following comparison was calculated from the committed paired real-data run **2026-11-14 18:00 UTC**, over 24 six-hour steps and 17,157 grid cells (129 x 133). AIFS-minus-IFS is the signed-difference convention. All grid cells are equally weighted; these are not area-weighted or land-only statistics.
+
+| Measure | Result |
+| --- | ---: |
+| Paired grid-cell / six-hour values | 411,768 |
+| Mean rainfall per grid cell per interval | IFS 0.862 mm; AIFS 0.773 mm |
+| Mean AIFS - IFS difference per interval | -0.089 mm |
+| Mean absolute interval difference | 0.658 mm |
+| Median absolute interval difference | 0.0 mm |
+| Interval pairs differing by less than 0.2 mm | 72.38% |
+| 90th percentile absolute interval difference | 1.4 mm |
+| Interval pairs differing by at least 2 mm | 7.72% |
+| Six-day average total per grid cell | IFS 20.69 mm; AIFS 18.54 mm |
+| Mean AIFS - IFS difference in six-day totals | -2.15 mm per grid cell |
+| Absolute six-day total difference: median / 90th percentile | 0.8 mm / 25.34 mm |
+| Largest absolute six-day total difference at one cell | 481.9 mm |
+
+The low median interval difference supports the conclusion that the two forecasts often give similar values at a grid cell and time step. The six-day totals have a different shape: the mean absolute difference is 9.47 mm, while the median is 0.8 mm and the 90th percentile is 25.34 mm. The upper tail of localized large differences pulls the mean upward; the median alone does not describe those hotspots.
+
+To check the visible Bay of Bengal hotspot, we compared an approximate rectangle (6-23 N, 80-99 E) with the rest of the grid. This is not a coastline or ocean polygon; the box includes both sea and nearby land.
+
+| Region | Grid cells | Cells meeting six-day disagreement rule | Median / P90 absolute six-day difference | Six-hour pairs with abs. difference >=2 mm |
+| --- | ---: | ---: | ---: | ---: |
+| Approximate Bay of Bengal box | 5,313 (31.0%) | 1,101 (68.7% of qualifying cells) | 12.1 / 58.4 mm | 22.22% |
+| Outside that box | 11,844 (69.0%) | 502 (31.3% of qualifying cells) | 0.2 / 3.97 mm | 1.22% |
+
+The spatial counts support saying that disagreement in this run is concentrated around the Bay of Bengal region. Because the calculation uses an approximate box and not a land mask, it does not establish what share of India's land area is in disagreement.
+
+**Conclusion:** For this forecast pair, agreement is close at the typical grid cell, while a smaller set of large, geographically concentrated differences drives much of the total discrepancy. The numbers do not say which model was more accurate. IFS is physics-based and AIFS is machine-learning-based; determining forecast skill requires comparing each forecast with independent observations (such as gauges or radar) for the same places and times. [ECMWF describes this model distinction](https://www.ecmwf.int/en/forecasts/documentation-and-support/changes-ecmwf-model).
 
 ## 2. Limitations
 

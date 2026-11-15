@@ -8,7 +8,7 @@
   let manifest, fields={}, mode="ifs", step=0, overlay=null, timer=null, marker=null, chart=null;
   const paletteStops=["0.2","1","2.5","5","10","25","50+"];
   function label(m){return m==="ifs"?"IFS":m==="aifs-single"?"AIFS":m;}
-  function decode(raw){return raw.data.map(frame=>Int16Array.from(frame,v=>v/raw.scale));}
+  function decode(raw){return raw.data.map(frame=>Float32Array.from(frame,v=>v/raw.scale));}
   function bounds(){const [north,south]=manifest.lat,[west,east]=manifest.lon;return [[south-(north-south)/(manifest.ny-1)/2,west-(east-west)/(manifest.nx-1)/2],[north+(north-south)/(manifest.ny-1)/2,east+(east-west)/(manifest.nx-1)/2]];}
   function render(){if(!manifest)return;const canvas=document.createElement("canvas");canvas.width=manifest.nx;canvas.height=manifest.ny;const ctx=canvas.getContext("2d"),img=ctx.createImageData(canvas.width,canvas.height),a=fields.ifs?.[step],b=fields["aifs-single"]?.[step];
     for(let i=0;i<img.data.length;i+=4){let mm=0,c;if(mode==="difference")c=Lg.diffColorFor((b?.[i/4]||0)-(a?.[i/4]||0));else{mm=fields[mode]?.[step]?.[i/4]||0;c=Lg.colorFor(mm);}img.data.set(c,i);}ctx.putImageData(img,0,0);const url=canvas.toDataURL();if(overlay)map.removeLayer(overlay);overlay=L.imageOverlay(url,bounds(),{opacity:.7,interactive:false}).addTo(map);}
