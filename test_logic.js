@@ -1,0 +1,10 @@
+const assert=require('node:assert/strict');
+const {colorFor,diffColorFor,summarize}=require('./web/logic.js');
+const times=Array.from({length:24},(_,i)=>new Date(Date.UTC(2026,0,1,6*(i+1))).toISOString());
+assert.match(summarize(Array(24).fill(0),times),/No significant rain/);
+const one=Array(24).fill(0);one[0]=38;const s1=summarize(one,times);assert.match(s1,/Very heavy/);assert.match(s1,/38 mm/);assert.match(s1,/6 hours/);assert.match(s1,/between 5:30am/);assert.match(s1,/and 11:30am/);
+const three=Array(24).fill(0);three.splice(4,3,5,20,13);const s3=summarize(three,times);assert.match(s3,/18 hours/);assert.match(s3,/38 mm/);assert.match(s3,/Heavy/);
+const wet=Array(24).fill(0);wet[0]=80;const dry=Array(24).fill(0);dry[0]=20;assert.match(summarize(wet,times,dry),/disagree/);
+const aifsSummary=summarize(dry,times,wet,'AIFS','IFS');assert.match(aifsSummary,/^AIFS:/);assert.match(aifsSummary,/IFS 80 mm vs AIFS 20 mm/);
+assert.equal(colorFor(.1)[3],0);assert.ok(colorFor(60)[0]>100&&colorFor(60)[2]>100&&colorFor(60)[3]>0);assert.equal(diffColorFor(0)[3],0);assert.ok(diffColorFor(12)[0]>diffColorFor(12)[2]);assert.ok(diffColorFor(-12)[2]>diffColorFor(-12)[0]);
+console.log('logic checks passed');

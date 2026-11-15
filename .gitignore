@@ -1,0 +1,7 @@
+# Downloaded ECMWF source files and their request indexes
+*.grib2
+*.idx
+
+# Python cache files
+__pycache__/
+*.py[cod]

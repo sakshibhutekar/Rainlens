@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101820"><title>RainLens — India rainfall forecast</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="sample-banner" class="sample-banner" hidden>SAMPLE DATA - NOT A REAL FORECAST</div>
+  <header class="topbar"><div><div class="brand">Rain<span>Lens</span></div><div class="subtitle">India precipitation · ECMWF Open Data</div></div><div class="head-right"><div id="run-time">Loading model run…</div><div id="valid-time" class="valid-time"></div></div><button id="theme-toggle" class="quiet" type="button">Light theme</button><button id="about-open" class="quiet">About</button></header>
+  <main>
+    <section class="toolbar"><div id="modes" class="segmented" aria-label="Forecast model"></div><div id="only-one" class="notice" hidden>Only one model available for this run: comparison disabled</div><div class="cities" id="cities"></div></section>
+    <section class="map-wrap"><div id="map" aria-label="Rainfall map"></div><div id="map-watermark" class="watermark" hidden>SAMPLE DATA</div><div id="loading" class="loading">Loading forecast data…</div><div id="error" class="error" hidden></div><div class="provenance" id="provenance"></div></section>
+    <section class="timeline"><div class="playrow"><button id="prev" aria-label="Previous step">‹</button><button id="play">Play</button><button id="next" aria-label="Next step">›</button><span id="step-label"></span></div><input id="slider" type="range" min="0" max="23" value="0" aria-label="Forecast time"><div class="range-labels"><span>+6 h</span><span>+144 h</span></div></section>
+    <section class="legend"><div id="legend-title">Rainfall · mm per 6 h</div><div id="legend-colors" class="legend-colors"></div><div id="legend-note" class="legend-note"></div></section>
+  </main>
+  <aside id="point-panel" class="point-panel" hidden><button id="close-panel" class="close" aria-label="Close details">×</button><div class="panel-head"><div><h2 id="point-title">Point forecast</h2><p id="summary"></p></div></div><div class="chart-wrap"><canvas id="rain-chart"></canvas></div></aside>
+  <dialog id="about"><button id="about-close" class="close" aria-label="Close">×</button><h2>About RainLens</h2><p>IFS is ECMWF’s physics based Integrated Forecasting System. AIFS is ECMWF’s AI based forecasting system. Rainfall is six-hourly accumulation derived from ECMWF Open Data.</p><p><strong>Data: ECMWF Open Data, CC-BY-4.0</strong></p><p>Model output is not an official warning. Known limitations: 0.25 degree grid, six-hourly intervals, and no verification against observations.</p></dialog>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="logic.js"></script><script src="app.js"></script>
+</body></html>
